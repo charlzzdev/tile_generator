@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./index.css">
+  <title>Terv feltöltés</title>
+</head>
+
+<body>
+  <h1>Terv feltöltés</h1>
+  <div id="status"></div>
+  <label for="fileInput" class="btn">Kép kiválasztása</label>
+  <input id="fileInput" type="file">
+  <div style="color: #656565;">...vagy dobd bárhova az oldalon</div>
+
+  <script>
+    const uploadImage = (file) => {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const status = document.getElementById('status');
+      status.innerHTML = '<div class="loading"></div>';
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+          status.style.color = data.ok ? 'green' : 'red';
+          status.innerHTML = data.msg;
+        });
+    }
+
+    document.body.addEventListener('dragover', e => e.preventDefault());
+    document.body.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadImage(e.dataTransfer.files[0]);
+    });
+
+    const fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', e => uploadImage(e.target.files[0]));
+  </script>
+</body>
+
+</html>
