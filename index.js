@@ -1,20 +1,11 @@
-const fs = require('fs');
-const im = require('imagemagick');
+const express = require('express');
 
-for(let zoom = 2; zoom <= 4; zoom++){
-  fs.mkdir(`tiles/${zoom}`, {recursive: true}, err => {
-    if(err) throw err;
-  });
+const app = express();
+const port = process.env.PORT || 4000;
 
-  const tileSize = 256;
-  const numberOfColumns = 2 ** zoom;
-  const resize = tileSize * numberOfColumns;
-  
-  im.convert([
-    '../b.png',
-    '-resize', `${resize}x${resize}`,
-    '-crop', `${tileSize}x${tileSize}`,
-    '-set', 'filename:tile', `%[fx:page.x/${tileSize}]_%[fx:page.y/${tileSize}]`,
-    `./tiles/${zoom}/%[filename:tile].png`
-  ], err => { if(err) throw err; });
-}
+app.use('/', express.static('./public'));
+app.use('/tiles', express.static('./tiles'));
+
+app.use('/upload', require('./api/routes/upload'));
+
+app.listen(port, () => console.log(`App listening on port ${port}`));
